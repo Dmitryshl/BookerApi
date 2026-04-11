@@ -39,10 +39,19 @@ public class GetBookingTests {
             }
 
     }
-@Test
-    public void testGetBookingById(){
+    @Test
+    public void testGetBookingById() throws Exception{
         int id = 1;
         Response response = apiClient.getBookingById(id);
         assertThat(response.getStatusCode()).isEqualTo(200);
+        Booking booking = objectMapper.readValue(response.getBody().asString(), Booking.class);
+        assertThat(booking).isNotNull();
+        assertThat(booking.getFirstname()).isNotBlank();
+        assertThat(booking.getTotalprice()).isGreaterThan(0);
+        assertThat(booking.getBookingdates()).isNotNull();
+        assertThat(booking.getBookingdates().getCheckin()).isNotBlank();
+        assertThat(booking.getBookingdates().getCheckout()).isNotBlank();
     }
+
+
 }
