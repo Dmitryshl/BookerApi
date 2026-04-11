@@ -39,4 +39,10 @@ public class GetBookingTests {
             }
 
     }
+@Test
+    public void testGetBookingById(){
+        int id = 1;
+        Response response = apiClient.getBookingById(id);
+        assertThat(response.getStatusCode()).isEqualTo(200);
+    }
 }
