@@ -65,7 +65,7 @@ public class GetBookingTests {
         int randomId = randomBooking.getBookingId();
         Response response1 = apiClient.deleteBooking(randomId);
         assertThat(response1.getStatusCode()).isEqualTo(201);
-        Response response2 = apiClient.getBookingById(randomId);
+        Response response2 = apiClient.getDeletedBooking(randomId);
         assertThat(response2.getStatusCode()).isEqualTo(404);
 }
 

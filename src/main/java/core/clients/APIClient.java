@@ -100,7 +100,11 @@ public class APIClient {
     public  Response getBookingById(int bookingid) {
         return getRequestSpec()
                 .when()
-                .get(ApiEndpoints.BOOKING.getPath() + "/" + bookingid);
+                .get(ApiEndpoints.BOOKING.getPath() + "/" + bookingid)
+                .then()
+                .statusCode(200)
+                .extract()
+                .response();
 
     }
 
@@ -114,6 +118,18 @@ public class APIClient {
                 .statusCode(201)
                 .extract()
                 .response();
+
+    }
+
+    public Response getDeletedBooking(int bookingid){
+        return getRequestSpec()
+                .when()
+                .get(ApiEndpoints.BOOKING.getPath() + "/" + bookingid)
+                .then()
+                .statusCode(404)
+                .extract()
+                .response();
+
 
     }
 }
