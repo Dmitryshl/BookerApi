@@ -100,11 +100,7 @@ public class APIClient {
     public  Response getBookingById(int bookingid) {
         return getRequestSpec()
                 .when()
-                .get(ApiEndpoints.BOOKING.getPath() + "/" + bookingid)
-                .then()
-                .statusCode(200)
-                .extract()
-                .response();
+                .get(ApiEndpoints.BOOKING.getPath() + "/" + bookingid);
 
     }
 
