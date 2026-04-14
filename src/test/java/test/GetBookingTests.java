@@ -20,6 +20,7 @@ public class GetBookingTests {
     public void setup() {
         apiClient = new APIClient();
         objectMapper = new ObjectMapper();
+        apiClient.createToken("admin", "password123");
     }
 
     @Test
@@ -41,7 +42,7 @@ public class GetBookingTests {
     }
     @Test
     public void testGetBookingById() throws Exception{
-        int id = 1;
+        int id = 6;
         Response response = apiClient.getBookingById(id);
         assertThat(response.getStatusCode()).isEqualTo(200);
         Booking booking = objectMapper.readValue(response.getBody().asString(), Booking.class);
