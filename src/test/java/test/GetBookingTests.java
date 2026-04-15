@@ -61,7 +61,7 @@ public class GetBookingTests {
         String responceBody = response.getBody().asString();
         List<Booking> bookings = objectMapper.readValue(responceBody, new TypeReference<List<Booking>>(){});
         Random random = new Random();
-        Booking randomBooking = bookings.get(random.nextInt(bookings.size()));
+        Booking randomBooking = bookings.get(random.nextInt(bookings.size() -1))   ;
         int randomId = randomBooking.getBookingId();
         Response response1 = apiClient.deleteBooking(randomId);
         assertThat(response1.getStatusCode()).isEqualTo(201);
