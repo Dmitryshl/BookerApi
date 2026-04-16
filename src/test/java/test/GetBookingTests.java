@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import java.util.List;
+import java.util.Random;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -20,6 +21,7 @@ public class GetBookingTests {
     public void setup() {
         apiClient = new APIClient();
         objectMapper = new ObjectMapper();
+        apiClient.createToken("admin", "password123");
     }
 
     @Test
@@ -41,7 +43,7 @@ public class GetBookingTests {
     }
     @Test
     public void testGetBookingById() throws Exception{
-        int id = 1;
+        int id = 6;
         Response response = apiClient.getBookingById(id);
         assertThat(response.getStatusCode()).isEqualTo(200);
         Booking booking = objectMapper.readValue(response.getBody().asString(), Booking.class);
@@ -52,6 +54,20 @@ public class GetBookingTests {
         assertThat(booking.getBookingdates().getCheckin()).isNotBlank();
         assertThat(booking.getBookingdates().getCheckout()).isNotBlank();
     }
+
+    @Test
+    public void getAllBookingIdAndDeleteRandom() throws Exception{
+        Response response = apiClient.getBooking();
+        String responceBody = response.getBody().asString();
+        List<Booking> bookings = objectMapper.readValue(responceBody, new TypeReference<List<Booking>>(){});
+        Random random = new Random();
+        Booking randomBooking = bookings.get(random.nextInt(bookings.size() -1))   ;
+        int randomId = randomBooking.getBookingId();
+        Response response1 = apiClient.deleteBooking(randomId);
+        assertThat(response1.getStatusCode()).isEqualTo(201);
+        Response response2 = apiClient.getDeletedBooking(randomId);
+        assertThat(response2.getStatusCode()).isEqualTo(404);
+}
 
 
 }
