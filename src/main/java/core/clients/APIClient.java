@@ -102,7 +102,6 @@ public class APIClient {
                 .when()
                 .get(ApiEndpoints.BOOKING.getPath() + "/" + bookingid)
                 .then()
-                .statusCode(200)
                 .extract()
                 .response();
 

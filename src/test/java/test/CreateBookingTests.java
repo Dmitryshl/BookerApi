@@ -7,6 +7,7 @@ import core.models.BookingDates;
 import core.models.CreatedBooking;
 import core.models.NewBooking;
 import io.restassured.response.Response;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -50,5 +51,14 @@ public class CreateBookingTests {
 
         assertThat(createdBooking).isNotNull();
         assertEquals(createdBooking.getBooking().getFirstname(),newBooking.getFirstname());
+    }
+
+    @AfterEach
+    public void tearDown() {
+        apiClient.createToken("admin","password123");
+        apiClient.deleteBooking(createdBooking.getBookingid());
+
+
+        assertThat(apiClient.getBookingById(createdBooking.getBookingid()).getStatusCode()).isEqualTo(404);
     }
 }
