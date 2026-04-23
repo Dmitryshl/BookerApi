@@ -1,0 +1,58 @@
+package test;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import core.clients.APIClient;
+import core.models.BookingDates;
+import core.models.CreatedBooking;
+import core.models.NewBooking;
+import io.restassured.response.Response;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+public class UpdateBookingTests {
+    private APIClient apiClient;
+    private ObjectMapper objectMapper;
+    private NewBooking newBooking;
+    private CreatedBooking createdBooking;
+
+    @BeforeEach
+    public void setup() {
+        apiClient = new APIClient();
+        objectMapper = new ObjectMapper();
+        apiClient.createToken("admin", "password123");
+        newBooking = new NewBooking();
+        newBooking.setFirstname("John");
+        newBooking.setLastname("Doe");
+        newBooking.setTotalprice(145);
+        newBooking.setDepositpaid(true);
+        newBooking.setBookingdates(new BookingDates("2025-01-01", "2025-01-07"));
+        newBooking.setAdditionalneeds("Breakfast");
+    }
+    @Test
+    public void testUpdateBookingById() throws Exception{
+        String requestBody = objectMapper.writeValueAsString(newBooking);
+        Response createResponse = apiClient.createBooking(requestBody);
+        createdBooking = objectMapper.readValue(createResponse.asString(), CreatedBooking.class);
+        Response response = apiClient.getBooking();
+
+        assertThat(response.getStatusCode()).isEqualTo(200);
+        String patchBody = "{ \"firstname\": \"SecondJohn\" }";
+
+        Response patchResponse = apiClient.updateBookingById(createdBooking.getBookingid(), patchBody);
+        assertThat(patchResponse.getStatusCode()).isEqualTo(200);
+        NewBooking booking = objectMapper.readValue(apiClient.getBookingById(createdBooking.getBookingid()).asString(), NewBooking.class);
+
+        assertThat(booking.getFirstname()).isEqualTo("SecondJohn");
+    }
+    @AfterEach
+    public void tearDown() {
+        apiClient.createToken("admin","password123");
+        apiClient.deleteBooking(createdBooking.getBookingid());
+
+
+        assertThat(apiClient.getBookingById(createdBooking.getBookingid()).getStatusCode()).isEqualTo(404);
+    }
+}

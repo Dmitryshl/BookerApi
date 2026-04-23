@@ -51,6 +51,12 @@ public class CreateBookingTests {
 
         assertThat(createdBooking).isNotNull();
         assertEquals(createdBooking.getBooking().getFirstname(),newBooking.getFirstname());
+        assertEquals(createdBooking.getBooking().getLastname(),newBooking.getLastname());
+        assertEquals(createdBooking.getBooking().getTotalprice(),newBooking.getTotalprice());
+        assertEquals(createdBooking.getBooking().isDepositpaid(),newBooking.isDepositpaid());
+        assertEquals(createdBooking.getBooking().getAdditionalneeds(),newBooking.getAdditionalneeds());
+        assertEquals(createdBooking.getBooking().getBookingdates().getCheckin(), newBooking.getBookingdates().getCheckin());
+        assertEquals(createdBooking.getBooking().getBookingdates().getCheckout(), newBooking.getBookingdates().getCheckout());
     }
 
     @AfterEach
