@@ -99,7 +99,6 @@ public class APIClient {
 
     public  Response getBookingById(int bookingid) {
         return getRequestSpec()
-                .contentType("application/json")
                 .when()
                 .get(ApiEndpoints.BOOKING.getPath() + "/" + bookingid)
                 .then()

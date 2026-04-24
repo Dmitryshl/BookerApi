@@ -28,11 +28,11 @@ public class BookingFilterTests {
         apiClient.createToken("admin","password123");
 
         NewBooking booking1 = new NewBooking();
-        booking1.setFirstname("Ivan");
-        booking1.setLastname("Ivanov");
+        booking1.setFirstname("Petrushka");
+        booking1.setLastname("Goroshkov");
         booking1.setTotalprice(100);
         booking1.setDepositpaid(true);
-        booking1.setBookingdates(new BookingDates("2025-01-01", "2025-01-05"));
+        booking1.setBookingdates(new BookingDates("2027-05-03", "2027-06-02"));
         booking1.setAdditionalneeds("Breakfast");
 
         Response response1 = apiClient.createBooking(objectMapper.writeValueAsString(booking1));
@@ -40,11 +40,11 @@ public class BookingFilterTests {
         bookingIds.add(created1.getBookingid());
 
         NewBooking booking2 = new NewBooking();
-        booking2.setFirstname("Ivan");
-        booking2.setLastname("Sidorov");
+        booking2.setFirstname("Luchok");
+        booking2.setLastname("Petrushkin");
         booking2.setTotalprice(100);
         booking2.setDepositpaid(true);
-        booking2.setBookingdates(new BookingDates("2025-01-01", "2025-01-10"));
+        booking2.setBookingdates(new BookingDates("2027-04-02", "2027-04-05"));
         booking2.setAdditionalneeds("Breakfast");
 
         Response response2 = apiClient.createBooking(objectMapper.writeValueAsString(booking2));
@@ -52,11 +52,11 @@ public class BookingFilterTests {
         bookingIds.add(created2.getBookingid());
 
         NewBooking booking3 = new NewBooking();
-        booking3.setFirstname("Petr");
-        booking3.setLastname("Petrov");
+        booking3.setFirstname("Pomidorchik");
+        booking3.setLastname("Ogurechik");
         booking3.setTotalprice(100);
         booking3.setDepositpaid(true);
-        booking3.setBookingdates(new BookingDates("2025-02-01", "2025-02-05"));
+        booking3.setBookingdates(new BookingDates("2025-05-01", "2025-05-03"));
         booking3.setAdditionalneeds("Breakfast");
 
         Response response3 = apiClient.createBooking(objectMapper.writeValueAsString(booking3));
@@ -66,98 +66,49 @@ public class BookingFilterTests {
 
     @Test
     public void testFilterByFirstname() {
-
-        Response response = apiClient.getBookingWithParam("firstname", "Ivan");
-
+        Response response = apiClient.getBookingWithParam("firstname", "Petrushka");
         assertThat(response.getStatusCode()).isEqualTo(200);
-
         List<Integer> ids = response.jsonPath().getList("bookingid");
-
-        boolean found = false;
-
-        for (Integer id : ids) {
-            Response r = apiClient.getBookingById(id);
-            String name = r.jsonPath().getString("firstname");
-
-            if (name.equals("Ivan")) {
-                found = true;
-                break;
-            }
-        }
-
-        assertThat(found).isTrue();
+        assertThat(ids).anyMatch(id -> bookingIds.contains(id));
     }
 
     @Test
     public void testFilterByLastname() {
-
-        Response response = apiClient.getBookingWithParam("lastname", "Petrov");
-
+        Response response = apiClient.getBookingWithParam("lastname", "Ogurechik");
         assertThat(response.getStatusCode()).isEqualTo(200);
-
         List<Integer> ids = response.jsonPath().getList("bookingid");
-
-        boolean found = false;
-
-        for (Integer id : ids) {
-            Response r = apiClient.getBookingById(id);
-            String name = r.jsonPath().getString("lastname");
-
-            if (name.equals("Petrov")) {
-                found = true;
-                break;
-            }
-        }
-
-        assertThat(found).isTrue();
+        assertThat(ids).anyMatch(id -> bookingIds.contains(id));
     }
 
     @Test
     public void testFilterByCheckin() {
-
-        Response response = apiClient.getBookingWithParam("checkin", "2025-01-01");
-
+        Response response = apiClient.getBookingWithParam("checkin", "2027-05-03");
         assertThat(response.getStatusCode()).isEqualTo(200);
-
-        List<Integer> ids = response.jsonPath().getList("bookingid");
-
-        boolean found = false;
-
-        for (Integer id : ids) {
+        List<Integer> ids = response.jsonPath().getList("bookingid", Integer.class);
+        List<Integer> matchingIds = ids.stream()
+                .filter(bookingIds::contains)
+                .toList();
+        for (Integer id : matchingIds) {
             Response r = apiClient.getBookingById(id);
-            String date = r.jsonPath().getString("bookingdates.checkin");
-
-            if (date.equals("2025-01-01")) {
-                found = true;
-                break;
-            }
+            String checkin = r.jsonPath().getString("bookingdates.checkin");
+            assertThat(checkin).isEqualTo("2027-05-03");
         }
-
-        assertThat(found).isTrue();
     }
 
     @Test
+
     public void testFilterByCheckout() {
-
-        Response response = apiClient.getBookingWithParam("checkout", "2025-01-10");
-
+        Response response = apiClient.getBookingWithParam("checkout", "2025-05-03");
         assertThat(response.getStatusCode()).isEqualTo(200);
-
-        List<Integer> ids = response.jsonPath().getList("bookingid");
-
-        boolean found = false;
-
-        for (Integer id : ids) {
+        List<Integer> ids = response.jsonPath().getList("bookingid", Integer.class);
+        List<Integer> matchingIds = ids.stream()
+                .filter(bookingIds::contains)
+                .toList();
+        for (Integer id : matchingIds) {
             Response r = apiClient.getBookingById(id);
-            String date = r.jsonPath().getString("bookingdates.checkout");
-
-            if (date.equals("2025-01-10")) {
-                found = true;
-                break;
-            }
+            String checkout = r.jsonPath().getString("bookingdates.checkout");
+            assertThat(checkout).isEqualTo("2025-05-03");
         }
-
-        assertThat(found).isTrue();
     }
 
     @AfterEach
