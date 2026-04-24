@@ -1,21 +1,26 @@
-#!/bin/bash
+pipeline {
 
-set -e
+    agent any
 
-echo "Starting Java tests build..."
+    stages {
 
-cd "$(dirname "$0")"
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
 
-if [ ! -x gradlew ]; then
-    echo "Making gradlew executable..."
-    chmod +x gradlew
-fi
+        stage('Run tests') {
+            steps {
+                sh 'chmod +x run-tests.sh'
+                sh './run-tests.sh'
+            }
+        }
 
-echo "Cleaning previous builds..."
-./gradlew clean
-
-echo "Running tests..."
-./gradlew test
-
-echo "Build completed successfully!"
-echo "Allure results saved to: allure-results/"
+        stage('Allure Report') {
+            steps {
+                allure results: [[path: 'allure-results']]
+            }
+        }
+    }
+}
