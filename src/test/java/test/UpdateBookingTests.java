@@ -1,9 +1,7 @@
 package test;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import core.clients.APIClient;
-import core.models.Booking;
 import core.models.BookingDates;
 import core.models.CreatedBooking;
 import core.models.NewBooking;
@@ -14,15 +12,11 @@ import io.restassured.response.Response;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import com.fasterxml.jackson.core.type.TypeReference;
-
-import java.util.List;
-
 
 import static io.qameta.allure.Allure.step;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class GetBookingTests {
+public class UpdateBookingTests {
     private APIClient apiClient;
     private ObjectMapper objectMapper;
     private NewBooking newBooking;
@@ -41,42 +35,32 @@ public class GetBookingTests {
         newBooking.setBookingdates(new BookingDates("2025-01-01", "2025-01-07"));
         newBooking.setAdditionalneeds("Breakfast");
     }
-
-
     @Test
     @Severity(SeverityLevel.CRITICAL)
     @Owner("Dmitry")
-    public void testGetBooking() throws Exception {
-        step("Тест на получение всех обьектов букинг", () -> {
+    public void testUpdateBookingById() throws Exception {
+        step("Тест на обновление обьекта букинг", () -> {
             String requestBody = objectMapper.writeValueAsString(newBooking);
             Response createResponse = apiClient.createBooking(requestBody);
             createdBooking = objectMapper.readValue(createResponse.asString(), CreatedBooking.class);
             Response response = apiClient.getBooking();
 
             assertThat(response.getStatusCode()).isEqualTo(200);
+            String patchBody = "{ \"firstname\": \"SecondJohn\" }";
 
+            Response patchResponse = apiClient.updateBookingById(createdBooking.getBookingid(), patchBody);
+            assertThat(patchResponse.getStatusCode()).isEqualTo(200);
+            NewBooking booking = objectMapper.readValue(apiClient.getBookingById(createdBooking.getBookingid()).asString(), NewBooking.class);
 
-            String responceBody = response.getBody().asString();
-            List<Booking> bookings = objectMapper.readValue(responceBody, new TypeReference<List<Booking>>() {
-            });
-
-            assertThat(bookings).isNotEmpty();
-
-            for (Booking booking : bookings) {
-                assertThat(booking.getBookingId()).isGreaterThan(0);
-            }
-
+            assertThat(booking.getFirstname()).isEqualTo("SecondJohn");
         });
     }
-
     @AfterEach
     public void tearDown() {
-            apiClient.deleteBooking(createdBooking.getBookingid());
-            assertThat(apiClient.getBookingById(createdBooking.getBookingid()).getStatusCode()).isEqualTo(404);
-        }
+        apiClient.createToken("admin","password123");
+        apiClient.deleteBooking(createdBooking.getBookingid());
+
+
+        assertThat(apiClient.getBookingById(createdBooking.getBookingid()).getStatusCode()).isEqualTo(404);
     }
-
-
-
-
-
+}

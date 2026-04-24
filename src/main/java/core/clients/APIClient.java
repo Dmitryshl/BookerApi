@@ -102,7 +102,6 @@ public class APIClient {
                 .when()
                 .get(ApiEndpoints.BOOKING.getPath() + "/" + bookingid)
                 .then()
-                .statusCode(200)
                 .extract()
                 .response();
 
@@ -121,15 +120,35 @@ public class APIClient {
 
     }
 
-    public Response getDeletedBooking(int bookingid){
+    public Response updateBookingById(int bookingid, String body){
         return getRequestSpec()
+                .body(body)
                 .when()
-                .get(ApiEndpoints.BOOKING.getPath() + "/" + bookingid)
+                .patch(ApiEndpoints.BOOKING.getPath() + "/" + bookingid)
                 .then()
-                .statusCode(404)
                 .extract()
                 .response();
+    }
 
+    public Response createBooking(String newBooking){
+        return getRequestSpec()
+                .body(newBooking)
+                .log().all()
+                .when()
+                .post(ApiEndpoints.BOOKING.getPath())
+                .then()
+                .log().all()
+                .extract()
+                .response();
+    }
+    public Response getBookingWithParam(String paramName, String paramValue) {
+        return getRequestSpec()
+                .queryParam(paramName, paramValue)
+                .when()
+                .get(ApiEndpoints.BOOKING.getPath())
+                .then()
+                .extract()
+                .response();
 
     }
 }
