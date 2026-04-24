@@ -5,11 +5,15 @@ import core.clients.APIClient;
 import core.models.BookingDates;
 import core.models.CreatedBooking;
 import core.models.NewBooking;
+import io.qameta.allure.Owner;
+import io.qameta.allure.Severity;
+import io.qameta.allure.SeverityLevel;
 import io.restassured.response.Response;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import static io.qameta.allure.Allure.step;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class UpdateBookingTests {
@@ -32,20 +36,24 @@ public class UpdateBookingTests {
         newBooking.setAdditionalneeds("Breakfast");
     }
     @Test
-    public void testUpdateBookingById() throws Exception{
-        String requestBody = objectMapper.writeValueAsString(newBooking);
-        Response createResponse = apiClient.createBooking(requestBody);
-        createdBooking = objectMapper.readValue(createResponse.asString(), CreatedBooking.class);
-        Response response = apiClient.getBooking();
+    @Severity(SeverityLevel.CRITICAL)
+    @Owner("Dmitry")
+    public void testUpdateBookingById() throws Exception {
+        step("Тест на обновление обьекта букинг", () -> {
+            String requestBody = objectMapper.writeValueAsString(newBooking);
+            Response createResponse = apiClient.createBooking(requestBody);
+            createdBooking = objectMapper.readValue(createResponse.asString(), CreatedBooking.class);
+            Response response = apiClient.getBooking();
 
-        assertThat(response.getStatusCode()).isEqualTo(200);
-        String patchBody = "{ \"firstname\": \"SecondJohn\" }";
+            assertThat(response.getStatusCode()).isEqualTo(200);
+            String patchBody = "{ \"firstname\": \"SecondJohn\" }";
 
-        Response patchResponse = apiClient.updateBookingById(createdBooking.getBookingid(), patchBody);
-        assertThat(patchResponse.getStatusCode()).isEqualTo(200);
-        NewBooking booking = objectMapper.readValue(apiClient.getBookingById(createdBooking.getBookingid()).asString(), NewBooking.class);
+            Response patchResponse = apiClient.updateBookingById(createdBooking.getBookingid(), patchBody);
+            assertThat(patchResponse.getStatusCode()).isEqualTo(200);
+            NewBooking booking = objectMapper.readValue(apiClient.getBookingById(createdBooking.getBookingid()).asString(), NewBooking.class);
 
-        assertThat(booking.getFirstname()).isEqualTo("SecondJohn");
+            assertThat(booking.getFirstname()).isEqualTo("SecondJohn");
+        });
     }
     @AfterEach
     public void tearDown() {

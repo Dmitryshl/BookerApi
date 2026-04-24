@@ -7,6 +7,9 @@ import core.models.Booking;
 import core.models.BookingDates;
 import core.models.CreatedBooking;
 import core.models.NewBooking;
+import io.qameta.allure.Owner;
+import io.qameta.allure.Severity;
+import io.qameta.allure.SeverityLevel;
 import io.restassured.response.Response;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,6 +19,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import java.util.List;
 
 
+import static io.qameta.allure.Allure.step;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class GetBookingTests {
@@ -40,25 +44,29 @@ public class GetBookingTests {
 
 
     @Test
+    @Severity(SeverityLevel.CRITICAL)
+    @Owner("Dmitry")
     public void testGetBooking() throws Exception {
-        String requestBody = objectMapper.writeValueAsString(newBooking);
-        Response createResponse = apiClient.createBooking(requestBody);
-        createdBooking = objectMapper.readValue(createResponse.asString(), CreatedBooking.class);
-        Response response = apiClient.getBooking();
+        step("Тест на получение всех обьектов букинг", () -> {
+            String requestBody = objectMapper.writeValueAsString(newBooking);
+            Response createResponse = apiClient.createBooking(requestBody);
+            createdBooking = objectMapper.readValue(createResponse.asString(), CreatedBooking.class);
+            Response response = apiClient.getBooking();
 
-        assertThat(response.getStatusCode()).isEqualTo(200);
+            assertThat(response.getStatusCode()).isEqualTo(200);
 
 
-        String responceBody = response.getBody().asString();
-        List<Booking> bookings = objectMapper.readValue(responceBody, new TypeReference<List<Booking>>() {
+            String responceBody = response.getBody().asString();
+            List<Booking> bookings = objectMapper.readValue(responceBody, new TypeReference<List<Booking>>() {
+            });
+
+            assertThat(bookings).isNotEmpty();
+
+            for (Booking booking : bookings) {
+                assertThat(booking.getBookingId()).isGreaterThan(0);
+            }
+
         });
-
-        assertThat(bookings).isNotEmpty();
-
-        for (Booking booking : bookings) {
-            assertThat(booking.getBookingId()).isGreaterThan(0);
-        }
-
     }
 
     @AfterEach
@@ -69,36 +77,6 @@ public class GetBookingTests {
     }
 
 
-
-
-////
-//    @Test
-//    public void testGetBookingById() throws Exception{
-//        int id = 6;
-//        Response response = apiClient.getBookingById(id);
-//        assertThat(response.getStatusCode()).isEqualTo(200);
-//        Booking booking = objectMapper.readValue(response.getBody().asString(), Booking.class);
-//        assertThat(booking).isNotNull();
-//        assertThat(booking.getFirstname()).isNotBlank();
-//        assertThat(booking.getTotalprice()).isGreaterThan(0);
-//        assertThat(booking.getBookingdates()).isNotNull();
-//        assertThat(booking.getBookingdates().getCheckin()).isNotBlank();
-//        assertThat(booking.getBookingdates().getCheckout()).isNotBlank();
-//    }
-//
-//    @Test
-//    public void getAllBookingIdAndDeleteRandom() throws Exception{
-//        Response response = apiClient.getBooking();
-//        String responceBody = response.getBody().asString();
-//        List<Booking> bookings = objectMapper.readValue(responceBody, new TypeReference<List<Booking>>(){});
-//        Random random = new Random();
-//        Booking randomBooking = bookings.get(random.nextInt(bookings.size() -1))   ;
-//        int randomId = randomBooking.getBookingId();
-//        Response response1 = apiClient.deleteBooking(randomId);
-//        assertThat(response1.getStatusCode()).isEqualTo(201);
-//        Response response2 = apiClient.getDeletedBooking(randomId);
-//        assertThat(response2.getStatusCode()).isEqualTo(404);
-//}
 
 
 

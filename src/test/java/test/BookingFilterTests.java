@@ -5,12 +5,16 @@ import core.clients.APIClient;
 import core.models.BookingDates;
 import core.models.CreatedBooking;
 import core.models.NewBooking;
+import io.qameta.allure.Owner;
+import io.qameta.allure.Severity;
+import io.qameta.allure.SeverityLevel;
 import io.restassured.response.Response;
 import org.junit.jupiter.api.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import static io.qameta.allure.Allure.step;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class BookingFilterTests {
@@ -65,50 +69,65 @@ public class BookingFilterTests {
     }
 
     @Test
+    @Severity(SeverityLevel.CRITICAL)
+    @Owner("Dmitry")
     public void testFilterByFirstname() {
-        Response response = apiClient.getBookingWithParam("firstname", "Petrushka");
-        assertThat(response.getStatusCode()).isEqualTo(200);
-        List<Integer> ids = response.jsonPath().getList("bookingid");
-        assertThat(ids).anyMatch(id -> bookingIds.contains(id));
+        step("Тест фильтра по имени", () -> {
+            Response response = apiClient.getBookingWithParam("firstname", "Petrushka");
+            assertThat(response.getStatusCode()).isEqualTo(200);
+            List<Integer> ids = response.jsonPath().getList("bookingid");
+            assertThat(ids).anyMatch(id -> bookingIds.contains(id));
+        });
     }
 
     @Test
+    @Severity(SeverityLevel.CRITICAL)
+    @Owner("Dmitry")
     public void testFilterByLastname() {
-        Response response = apiClient.getBookingWithParam("lastname", "Ogurechik");
-        assertThat(response.getStatusCode()).isEqualTo(200);
-        List<Integer> ids = response.jsonPath().getList("bookingid");
-        assertThat(ids).anyMatch(id -> bookingIds.contains(id));
+        step("Тест фильтра по фамилии", () -> {
+            Response response = apiClient.getBookingWithParam("lastname", "Ogurechik");
+            assertThat(response.getStatusCode()).isEqualTo(200);
+            List<Integer> ids = response.jsonPath().getList("bookingid");
+            assertThat(ids).anyMatch(id -> bookingIds.contains(id));
+        });
     }
 
     @Test
+    @Severity(SeverityLevel.CRITICAL)
+    @Owner("Dmitry")
     public void testFilterByCheckin() {
-        Response response = apiClient.getBookingWithParam("checkin", "2027-05-03");
-        assertThat(response.getStatusCode()).isEqualTo(200);
-        List<Integer> ids = response.jsonPath().getList("bookingid", Integer.class);
-        List<Integer> matchingIds = ids.stream()
-                .filter(bookingIds::contains)
-                .toList();
-        for (Integer id : matchingIds) {
-            Response r = apiClient.getBookingById(id);
-            String checkin = r.jsonPath().getString("bookingdates.checkin");
-            assertThat(checkin).isEqualTo("2027-05-03");
-        }
+        step("Тест фильтра по дате заезда", () -> {
+            Response response = apiClient.getBookingWithParam("checkin", "2027-05-03");
+            assertThat(response.getStatusCode()).isEqualTo(200);
+            List<Integer> ids = response.jsonPath().getList("bookingid", Integer.class);
+            List<Integer> matchingIds = ids.stream()
+                    .filter(bookingIds::contains)
+                    .toList();
+            for (Integer id : matchingIds) {
+                Response r = apiClient.getBookingById(id);
+                String checkin = r.jsonPath().getString("bookingdates.checkin");
+                assertThat(checkin).isEqualTo("2027-05-03");
+            }
+        });
     }
 
     @Test
-
+    @Severity(SeverityLevel.CRITICAL)
+    @Owner("Dmitry")
     public void testFilterByCheckout() {
-        Response response = apiClient.getBookingWithParam("checkout", "2025-05-03");
-        assertThat(response.getStatusCode()).isEqualTo(200);
-        List<Integer> ids = response.jsonPath().getList("bookingid", Integer.class);
-        List<Integer> matchingIds = ids.stream()
-                .filter(bookingIds::contains)
-                .toList();
-        for (Integer id : matchingIds) {
-            Response r = apiClient.getBookingById(id);
-            String checkout = r.jsonPath().getString("bookingdates.checkout");
-            assertThat(checkout).isEqualTo("2025-05-03");
-        }
+        step("Тест фильтра по дате выезда", () -> {
+            Response response = apiClient.getBookingWithParam("checkout", "2025-05-03");
+            assertThat(response.getStatusCode()).isEqualTo(200);
+            List<Integer> ids = response.jsonPath().getList("bookingid", Integer.class);
+            List<Integer> matchingIds = ids.stream()
+                    .filter(bookingIds::contains)
+                    .toList();
+            for (Integer id : matchingIds) {
+                Response r = apiClient.getBookingById(id);
+                String checkout = r.jsonPath().getString("bookingdates.checkout");
+                assertThat(checkout).isEqualTo("2025-05-03");
+            }
+        });
     }
 
     @AfterEach
